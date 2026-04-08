@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL I — Exam Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111317;
+    --surface2: #181b21;
+    --border: #252830;
+    --accent: #e8642c;
+    --accent2: #f0a054;
+    --accent-dim: rgba(232,100,44,0.15);
+    --text: #e8eaf0;
+    --muted: #7a7f8e;
+    --correct: #2dbd72;
+    --correct-bg: rgba(45,189,114,0.12);
+    --wrong: #e84c4c;
+    --wrong-bg: rgba(232,76,76,0.12);
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --radius: 10px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  header {
+    width: 100%;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+
+  .header-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Randomize toggle */
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+  }
+  .toggle-wrap:hover { color: var(--text); }
+  .toggle-wrap input { display: none; }
+  .toggle-track {
+    width: 36px;
+    height: 20px;
+    background: var(--border);
+    border-radius: 99px;
+    position: relative;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+  .toggle-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--muted);
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.25s, background 0.25s;
+  }
+  .toggle-wrap input:checked ~ .toggle-track { background: var(--accent-dim); border: 1px solid rgba(232,100,44,0.5); }
+  .toggle-wrap input:checked ~ .toggle-track .toggle-thumb { transform: translateX(16px); background: var(--accent); }
+  .toggle-label { transition: color 0.2s; }
+  .toggle-wrap:has(input:checked) .toggle-label { color: var(--accent2); }
+
+  /* Remediation badge */
+  .rem-badge {
+    display: none;
+    background: var(--accent-dim);
+    border: 1px solid rgba(232,100,44,0.4);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: 0.04em;
+  }
+  .rem-badge.visible { display: block; }
+
+  /* Stats */
+  .dashboard { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .stat { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 600; }
+  .stat-val { font-family: var(--font-mono); font-size: 0.95rem; }
+  .stat-val.cv { color: var(--correct); }
+  .stat-val.wv { color: var(--wrong); }
+  .stat-val.sv { color: var(--accent2); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    width: 100%;
+    padding: 0 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-bar-track { height: 3px; background: var(--border); overflow: hidden; }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ── MAIN ── */
+  main {
+    width: 100%;
+    max-width: 740px;
+    padding: 32px 20px 80px;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── QUESTION COUNTER ── */
+  .q-counter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .q-counter-num {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .q-counter-num span { color: var(--accent); }
+
+  /* ── SECTION STRIP ── */
+  .section-strip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    animation: fadeIn 0.3s ease;
+  }
+  .section-strip-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3px;
+  }
+  .section-strip-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+  .section-strip-intro {
+    font-size: 0.78rem;
+    color: #9099ab;
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .key-terms { display: flex; flex-wrap: wrap; gap: 5px; }
+  .term-chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--accent2);
+  }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    animation: slideUp 0.35s cubic-bezier(0.22,1,0.36,1) both;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .question-card.correct { border-color: var(--correct); }
+  .question-card.wrong   { border-color: var(--wrong); }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .q-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-type-chip {
+    font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    background: var(--accent-dim); border: 1px solid rgba(232,100,44,0.3);
+    color: var(--accent2); padding: 2px 8px; border-radius: 5px;
+    font-family: var(--font-mono);
+  }
+  .q-section-chip {
+    font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); padding: 2px 8px; border-radius: 5px;
+  }
+
+  .question-text {
+    font-size: 1rem;
+    line-height: 1.62;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  /* Context box */
+  .ctx-wrap { margin-bottom: 16px; }
+  .ctx-label {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 6px; font-family: var(--font-display);
+  }
+  .ctx-box {
+    background: #0d1117;
+    border: 1px solid #252d3d;
+    border-left: 3px solid var(--accent);
+    border-radius: 7px;
+    padding: 12px 14px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    line-height: 1.65;
+    color: #b8c4d8;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option {
+    display: flex; align-items: flex-start; gap: 11px;
+    padding: 11px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.18s, background 0.18s, transform 0.12s;
+    font-size: 0.9rem; line-height: 1.5; font-weight: 500;
+    user-select: none;
+  }
+  .option:hover:not(.locked) { border-color: var(--accent); background: var(--accent-dim); transform: translateX(3px); }
+  .option.sel  { border-color: var(--accent); background: var(--accent-dim); }
+  .option.ok   { border-color: var(--correct) !important; background: var(--correct-bg) !important; }
+  .option.bad  { border-color: var(--wrong) !important; background: var(--wrong-bg) !important; }
+  .option.locked { cursor: default; }
+  .opt-mark {
+    width: 22px; height: 22px; min-width: 22px;
+    border-radius: 5px; background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: var(--muted);
+    transition: background 0.18s, color 0.18s;
+    margin-top: 1px;
+  }
+  .option.sel  .opt-mark { background: var(--accent); color: #fff; }
+  .option.ok   .opt-mark { background: var(--correct); color: #fff; }
+  .option.bad  .opt-mark { background: var(--wrong); color: #fff; }
+
+  /* Buttons row */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    align-items: center;
+  }
+  .btn-submit {
+    padding: 10px 26px;
+    background: var(--accent);
+    color: #fff; border: none; border-radius: 8px;
+    font-family: var(--font-display); font-size: 0.88rem; font-weight: 700;
+    cursor: pointer; transition: background 0.18s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+  .btn-submit:hover:not(:disabled) { background: #d45820; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.3; cursor: default; transform: none; }
+
+  .btn-next {
+    display: none;
+    padding: 10px 26px;
+    background: var(--surface2);
+    color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+    font-family: var(--font-display); font-size: 0.88rem; font-weight: 700;
+    cursor: pointer; transition: background 0.18s, border-color 0.18s;
+    letter-spacing: 0.02em;
+  }
+  .btn-next:hover { background: var(--surface); border-color: var(--accent); }
+  .btn-next.visible { display: block; }
+
+  /* Feedback */
+  .feedback {
+    display: none;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 0.86rem;
+    line-height: 1.65;
+    border-left: 4px solid;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback.correct-fb {
+    display: block;
+    background: var(--correct-bg);
+    border-color: var(--correct);
+    color: #a8efcc;
+  }
+  .feedback.wrong-fb {
+    display: block;
+    background: var(--wrong-bg);
+    border-color: var(--wrong);
+    color: #f0b8b8;
+  }
+  .fb-label {
+    font-weight: 800; font-size: 0.74rem;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px;
+  }
+  .feedback.correct-fb .fb-label { color: var(--correct); }
+  .feedback.wrong-fb .fb-label   { color: var(--wrong); }
+
+  /* ── SUMMARY SCREEN ── */
+  .summary-hero {
+    text-align: center;
+    padding: 40px 0 32px;
+    animation: slideUp 0.4s ease;
+  }
+  .summary-pct {
+    font-size: 5.5rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .summary-sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .summary-verdict {
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .verdict-great { background: rgba(45,189,114,0.15); color: var(--correct); border: 1px solid rgba(45,189,114,0.3); }
+  .verdict-ok    { background: rgba(240,160,84,0.15); color: var(--accent2); border: 1px solid rgba(240,160,84,0.3); }
+  .verdict-low   { background: rgba(232,76,76,0.15);  color: var(--wrong);   border: 1px solid rgba(232,76,76,0.3); }
+
+  /* Section breakdown */
+  .section-breakdown {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .breakdown-header {
+    padding: 12px 18px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .br-section {
+    font-size: 0.82rem;
+    font-weight: 700;
+    flex: 1;
+    min-width: 0;
+  }
+  .br-bar-wrap {
+    width: 120px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .br-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.22,1,0.36,1);
+  }
+  .br-bar-fill.full  { background: var(--correct); }
+  .br-bar-fill.some  { background: var(--accent2); }
+  .br-bar-fill.none  { background: var(--wrong); }
+  .br-score {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .br-score.full { color: var(--correct); }
+  .br-score.some { color: var(--accent2); }
+  .br-score.none { color: var(--wrong); }
+
+  /* Missed questions list */
+  .missed-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--wrong);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .missed-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(232,76,76,0.25);
+  }
+
+  .missed-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--wrong);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    animation: slideUp 0.3s ease both;
+  }
+  .missed-q-text {
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .missed-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  .missed-answer-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  .ma-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .ma-label.you     { background: var(--wrong-bg); color: var(--wrong); border: 1px solid rgba(232,76,76,0.3); }
+  .ma-label.correct { background: var(--correct-bg); color: var(--correct); border: 1px solid rgba(45,189,114,0.3); }
+  .missed-why {
+    font-size: 0.79rem;
+    color: #9099ab;
+    line-height: 1.6;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    margin-top: 2px;
+  }
+  .missed-why strong { color: var(--wrong); }
+
+  /* Summary action buttons */
+  .summary-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 36px;
+    padding-bottom: 20px;
+  }
+  .btn-primary {
+    padding: 13px 32px;
+    background: var(--accent);
+    color: #fff; border: none; border-radius: 9px;
+    font-family: var(--font-display); font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: background 0.18s, transform 0.12s;
+  }
+  .btn-primary:hover { background: #d45820; transform: translateY(-2px); }
+  .btn-secondary {
+    padding: 13px 32px;
+    background: var(--surface2);
+    color: var(--text); border: 1px solid var(--border); border-radius: 9px;
+    font-family: var(--font-display); font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: background 0.18s;
+  }
+  .btn-secondary:hover { background: var(--surface); }
+
+  /* no misses screen */
+  .perfect-screen { text-align: center; padding: 60px 0; animation: slideUp 0.4s ease; }
+  .perfect-score { font-size: 5rem; font-weight: 800; color: var(--correct); margin-bottom: 10px; }
+  .perfect-msg { font-size: 1rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">SQL<span>I</span> · Exam Prep</div>
+
+  <div class="header-center">
+    <span class="rem-badge" id="rem-badge">🔁 Remediation</span>
+    <label class="toggle-wrap" title="Randomize question order">
+      <input type="checkbox" id="toggle-random">
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-label">Shuffle</span>
+    </label>
+  </div>
+
+  <div class="dashboard">
+    <div class="stat">✓ <span class="stat-val cv" id="s-correct">0</span></div>
+    <div class="stat">✗ <span class="stat-val wv" id="s-wrong">0</span></div>
+    <div class="stat">Score <span class="stat-val sv" id="s-score">—</span></div>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="prog-fill"></div>
+  </div>
+</div>
+
+<main>
+  <!-- QUIZ SCREEN -->
+  <div class="screen active" id="screen-quiz">
+    <div class="q-counter">
+      <div>
+        <span class="q-counter-num" id="q-counter-num">Q<span>1</span></span>
+        <span style="margin-left:6px; font-size:0.78rem; color:var(--muted);" id="q-counter-of">of 39</span>
+      </div>
+      <div id="q-counter-section" style="font-size:0.76rem; color:var(--muted); text-align:right;"></div>
+    </div>
+
+    <div id="section-strip-wrap"></div>
+
+    <div id="question-wrap"></div>
+  </div>
+
+  <!-- SUMMARY SCREEN -->
+  <div class="screen" id="screen-summary"></div>
+</main>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+
+const COMPANY_SCHEMA = `EMPLOYEE(Fname, Minit, Lname, Ssn, Bdate, Address, Sex, Salary, Super_ssn, Dno)
+DEPARTMENT(Dname, Dnumber, Mgr_ssn, Mgr_start_date)
+DEPT_LOCATIONS(Dnumber, Dlocation)
+PROJECT(Pname, Pnumber, Plocation, Dnum)
+WORKS_ON(Essn, Pno, Hours)
+DEPENDENT(Essn, Dependent_name, Sex, Bdate, Relationship)`;
+
+const SAMPLE_WORKS_ON = `Essn       Pno  Hours
+123456789   1   32.5
+123456789   2    7.5
+666884444   3   40.0
+453453453   1   20.0
+453453453   2   20.0
+333445555   2   10.0
+333445555   3   10.0
+333445555  10   10.0
+333445555  20   10.0
+999887777  10   10.0
+999887777  30   30.0
+987987987  10   35.0
+987987987  30    5.0
+987654321  20   15.0
+987654321  30   20.0
+888665555  20  NULL`;
+
+const SAMPLE_PROJECT = `Pname           Pnumber  Plocation  Dnum
+ProductX             1  Bellaire     5
+ProductY             2  Sugarland    5
+ProductZ             3  Houston      5
+Computerization     10  Stafford     4
+Reorganization      20  Houston      1
+Newbenefits         30  Stafford     4`;
+
+function ctx(label, code) {
+  return `<div class="ctx-wrap"><div class="ctx-label">${label}</div><pre class="ctx-box">${code}</pre></div>`;
+}
+const schemaCtx = (extra='') => ctx('COMPANY Database Schema', COMPANY_SCHEMA + extra);
+
+const sections = [
+  {
+    id:"s1", num:"01",
+    title:"SELECT Basics & WHERE Clause",
+    intro:"The SELECT-FROM-WHERE block is the foundation of SQL. SELECT names columns; FROM names tables; WHERE filters rows using comparison operators and AND/OR/NOT.",
+    terms:["SELECT","FROM","WHERE","AND","OR","NOT","<>"],
+    questions:[
+      { type:"mc", text:"Which SQL clause filters rows that satisfy a condition?",
+        options:["SELECT","FROM","WHERE","ORDER BY"], correct:[2],
+        feedback:{ right:"WHERE filters rows via a Boolean condition. SELECT chooses columns, FROM identifies the table, ORDER BY sorts — none filter.", wrong:"WHERE is the filter. SELECT picks columns, FROM picks the table, ORDER BY sorts results." }
+      },
+      { type:"mc", text:"Which query correctly retrieves the birth date and address of 'John B. Smith'?",
+        context: schemaCtx(),
+        options:[
+          "SELECT Bdate, Address FROM EMPLOYEE WHERE Fname='John' AND Lname='Smith';",
+          "SELECT Bdate, Address FROM EMPLOYEE WHERE Fname='John' AND Minit='B' AND Lname='Smith';",
+          "SELECT * FROM EMPLOYEE WHERE Lname='Smith';",
+          "SELECT Bdate, Address WHERE Fname='John' AND Minit='B';"
+        ], correct:[1],
+        feedback:{ right:"All three name parts are required to uniquely identify John B. Smith. Omitting Minit risks returning multiple John Smiths. Option D is missing FROM entirely.", wrong:"Option A omits Minit — multiple John Smiths could exist. Option C returns all columns for all Smiths. Option D is missing the required FROM clause." }
+      },
+      { type:"tf", text:"In SQL, 'Grove' and 'grove' are treated as identical because SQL is not case-sensitive for string values.",
+        options:["True","False"], correct:[1],
+        feedback:{ right:"SQL character values ARE case-sensitive. 'Grove' ≠ 'grove'. WHERE City='Grove' will not match rows storing 'grove'.", wrong:"SQL character values ARE case-sensitive — 'Grove' and 'grove' are different. This is a common exam trap." }
+      },
+      { type:"mc", text:"Which query retrieves project names NOT controlled by department 5?",
+        context: schemaCtx(`\n\nSample PROJECT:\nPname           Pnumber  Dnum\nProductX             1     5\nComputerization     10     4\nNewbenefits         30     4`),
+        options:[
+          "SELECT Pname FROM PROJECT WHERE Dnum = 5;",
+          "SELECT Pname FROM PROJECT WHERE NOT (Dnum=5);",
+          "SELECT Pname FROM PROJECT WHERE Dnum <> 5;",
+          "Both B and C are correct"
+        ], correct:[3],
+        feedback:{ right:"NOT (Dnum=5) and Dnum <> 5 are logically equivalent — both valid. Option A is the opposite, returning only dept-5 projects.", wrong:"Both B and C produce identical results — they're two syntaxes for the same logic. Option A retrieves the wrong rows (dept 5 only)." }
+      },
+      { type:"mc", text:"What does SELECT * FROM DEPARTMENT return?",
+        options:[
+          "A count of all department rows",
+          "All columns for all rows, in the order defined at table creation",
+          "Only non-null columns",
+          "An error — * is not valid in SELECT"
+        ], correct:[1],
+        feedback:{ right:"SELECT * returns every column in the table's creation order. You can list specific column names in SELECT to reorder or limit output.", wrong:"SELECT * is shorthand for all columns, in creation order. It has nothing to do with counting rows or filtering nulls." }
+      }
+    ]
+  },
+  {
+    id:"s2", num:"02",
+    title:"LIKE Operator & Pattern Matching",
+    intro:"LIKE retrieves rows without an exact match. % replaces any number of characters; _ replaces exactly one character.",
+    terms:["LIKE","%","_ underscore","pattern matching","substring"],
+    questions:[
+      { type:"mc", text:"Which pattern matches employees whose address contains 'Houston, TX' anywhere?",
+        options:["LIKE 'Houston, TX'","LIKE '%Houston, TX'","LIKE 'Houston, TX%'","LIKE '%Houston, TX%'"],
+        correct:[1],
+        feedback:{ right:"'%Houston, TX' matches any characters before 'Houston, TX' — e.g. '5631 Rice, Houston, TX'. The slides use this exact pattern.", wrong:"Without a leading %, the pattern requires the string to START with 'Houston'. '%Houston, TX%' also works but '%Houston, TX' is the canonical pattern from the slides." }
+      },
+      { type:"mc", text:"How many underscores are needed to match 1950s birth dates stored as YYYY-MM-DD using: WHERE Bdate LIKE '195_______ '?",
+        options:["5 underscores","6 underscores","7 underscores","8 underscores"],
+        correct:[2],
+        feedback:{ right:"YYYY-MM-DD has 10 chars total. '195' = 3 chars, so 7 underscores cover the remaining -MM-DD (e.g. -5-03-15). The slides explicitly say 'seven underscores'.", wrong:"Count: YYYY-MM-DD = 10 chars. '195' = 3. Remaining = 7 characters, requiring 7 underscores." }
+      },
+      { type:"tf", text:"The pattern LIKE 'T_M' matches 'TIM' and 'TOM' but NOT 'TOOM'.",
+        options:["True","False"], correct:[0],
+        feedback:{ right:"_ matches exactly one character. T_M = T + any-one-char + M. 'TOOM' has two chars between T and M so it doesn't match — T__M would be needed.", wrong:"True — _ is a single-char wildcard. 'TOOM' needs T__M to match." }
+      },
+      { type:"mc", text:"Which pattern matches last names that START with 'J'?",
+        options:["LIKE '%J'","LIKE 'J%'","LIKE '_J_'","LIKE '%J%'"],
+        correct:[1],
+        feedback:{ right:"'J%' anchors to the start — J followed by any characters. This is the correct pattern for WHERE Lname LIKE 'J%'.", wrong:"'%J' matches names ending with J. '_J_' places J at the 2nd position. '%J%' matches J anywhere. Only 'J%' guarantees the name starts with J." }
+      }
+    ]
+  },
+  {
+    id:"s3", num:"03",
+    title:"Aggregate Functions",
+    intro:"Aggregate functions collapse rows into a single value. NULLs are discarded. They can only appear in SELECT and HAVING — never in WHERE. DISTINCT can be used inside COUNT.",
+    terms:["AVG","COUNT","MAX","MIN","SUM","NULL discard","DISTINCT"],
+    questions:[
+      { type:"mc", text:"Which query retrieves the average AND minimum salary of employees in department 5?",
+        context: ctx("Sample EMPLOYEE (Dno=5 only)", `Fname     Ssn        Dno  Salary
+John      123456789   5   30000
+Franklin  333445555   5   40000
+Ramesh    666884444   5   38000
+Joyce     453453453   5   25000`),
+        options:[
+          "SELECT Salary FROM EMPLOYEE WHERE Dno=5;",
+          "SELECT AVG(Salary), MIN(Salary) FROM EMPLOYEE WHERE Dno=5;",
+          "SELECT AVG(Salary), MIN(Salary) FROM EMPLOYEE HAVING Dno=5;",
+          "SELECT AVG, MIN FROM EMPLOYEE WHERE Dno=5;"
+        ], correct:[1],
+        feedback:{ right:"AVG() and MIN() in SELECT, WHERE filters rows before aggregation. HAVING (option C) only works after GROUP BY. Option D treats AVG/MIN as column names.", wrong:"HAVING is for post-GROUP BY filtering, not row filtering. AVG and MIN need parentheses and a column name." }
+      },
+      { type:"mc", text:"Which query counts the DISTINCT employees who have at least one dependent?",
+        context: ctx("Relevant tables", `EMPLOYEE(Ssn, Fname, ...)\nDEPENDENT(Essn, Dependent_name, ...)\n-- Essn in DEPENDENT references Ssn in EMPLOYEE`),
+        options:[
+          "SELECT COUNT(*) FROM DEPENDENT;",
+          "SELECT COUNT(Essn) FROM DEPENDENT;",
+          "SELECT COUNT(DISTINCT Essn) FROM DEPENDENT;",
+          "SELECT DISTINCT COUNT(Essn) FROM DEPENDENT;"
+        ], correct:[2],
+        feedback:{ right:"COUNT(DISTINCT Essn) deduplicates — an employee with 3 dependents still counts once. COUNT(*) counts all rows. COUNT(Essn) includes duplicates. DISTINCT must go inside COUNT.", wrong:"COUNT(*) counts all dependent rows. COUNT(Essn) includes duplicate employee SSNs. DISTINCT belongs INSIDE the function: COUNT(DISTINCT Essn)." }
+      },
+      { type:"tf", text:"AVG() treats NULL values as 0 when calculating the average.",
+        options:["True","False"], correct:[1],
+        feedback:{ right:"NULLs are DISCARDED. AVG({30000, NULL, 40000}) = (30000+40000)/2 = 35000, not /3. This is a classic exam trap.", wrong:"NULLs are excluded entirely from aggregate calculations, not counted as zero." }
+      },
+      { type:"mc", text:"Which query finds the sum, max, min, and average of ALL employee salaries?",
+        options:[
+          "SELECT SUM(Salary), MAX(Salary), MIN(Salary), AVG(Salary) FROM EMPLOYEE;",
+          "SELECT SUM, MAX, MIN, AVG FROM EMPLOYEE;",
+          "SELECT SUM(Salary), MAX(Salary), MIN(Salary), AVG(Salary) FROM EMPLOYEE WHERE Salary > 0;",
+          "SELECT AGGREGATE(Salary) FROM EMPLOYEE;"
+        ], correct:[0],
+        feedback:{ right:"All four aggregate functions can appear together in one SELECT clause. No WHERE needed for all employees. AGGREGATE() is not a real SQL function.", wrong:"SUM/MAX/MIN/AVG require parentheses + a column argument. Option B treats them as column names. Option D is not valid SQL." }
+      }
+    ]
+  },
+  {
+    id:"s4", num:"04",
+    title:"GROUP BY & HAVING",
+    intro:"GROUP BY partitions rows into groups; aggregates are applied per group. HAVING filters groups after aggregation — WHERE cannot use aggregates. GROUP BY attributes must appear in SELECT.",
+    terms:["GROUP BY","HAVING","COUNT(*)","aggregate filter","group partition"],
+    questions:[
+      { type:"mc", text:"For each department with at least 3 employees, list Dno, employee count, and average salary.",
+        context: ctx("EMPLOYEE (partial)", `Dno  Salary\n 5   30000\n 5   40000\n 5   38000\n 5   25000\n 4   43000\n 4   25000\n 4   25000\n 1   55000`),
+        options:[
+          "SELECT Dno, COUNT(*), AVG(Salary) FROM EMPLOYEE WHERE COUNT(*) >= 3 GROUP BY Dno;",
+          "SELECT Dno, COUNT(*), AVG(Salary) FROM EMPLOYEE GROUP BY Dno HAVING COUNT(*) >= 3;",
+          "SELECT Dno, COUNT(*), AVG(Salary) FROM EMPLOYEE GROUP BY Dno WHERE COUNT(*) >= 3;",
+          "SELECT Dno, COUNT(*), AVG(Salary) FROM EMPLOYEE HAVING COUNT(*) >= 3;"
+        ], correct:[1],
+        feedback:{ right:"COUNT(*) can't go in WHERE (evaluated before grouping). HAVING comes after GROUP BY. Option C puts WHERE after GROUP BY — invalid syntax. Option D omits GROUP BY.", wrong:"WHERE is evaluated BEFORE grouping — aggregates don't exist yet. HAVING is the post-GROUP BY filter. Clause order: WHERE → GROUP BY → HAVING." }
+      },
+      { type:"mc", text:"For each employee who has dependents, list the employee's SSN and number of dependents.",
+        context: ctx("DEPENDENT table", `Essn       Dependent_name\n333445555  Alice\n333445555  Theodore\n333445555  Joy\n123456789  Michael\n123456789  Alice\n123456789  Elizabeth`),
+        options:[
+          "SELECT Essn, COUNT(*) FROM DEPENDENT;",
+          "SELECT Essn, COUNT(*) FROM DEPENDENT GROUP BY Essn;",
+          "SELECT Essn, COUNT(*) FROM DEPENDENT HAVING Essn IS NOT NULL;",
+          "SELECT Essn, COUNT(Dependent_name) FROM EMPLOYEE GROUP BY Essn;"
+        ], correct:[1],
+        feedback:{ right:"GROUP BY Essn creates one group per employee; COUNT(*) counts their dependents. Without GROUP BY, COUNT(*) returns a single total. Option D queries the wrong table.", wrong:"Without GROUP BY, COUNT(*) returns a single count of all rows. You need GROUP BY Essn for per-employee counts. EMPLOYEE doesn't have dependent data." }
+      },
+      { type:"tf", text:"GROUP BY attributes must appear in the same order as the SELECT attributes.",
+        options:["True","False"], correct:[1],
+        feedback:{ right:"They must match the non-aggregate SELECT attributes but order doesn't have to match. The slides explicitly state: 'can be in different order'.", wrong:"The attributes must match but can appear in a different order. SELECT Lname, Fname ... GROUP BY Fname, Lname is valid." }
+      },
+      { type:"mc", text:"Which query lists the department NAME and employee count, for departments with 2+ employees?",
+        context: schemaCtx(),
+        options:[
+          "SELECT Dname, COUNT(*) FROM DEPARTMENT GROUP BY Dname HAVING COUNT(*) >= 2;",
+          "SELECT Dname, COUNT(*) FROM EMPLOYEE, DEPARTMENT WHERE Dno=Dnumber GROUP BY Dname HAVING COUNT(*) >= 2;",
+          "SELECT Dname, COUNT(*) FROM EMPLOYEE GROUP BY Dname HAVING COUNT(*) >= 2;",
+          "SELECT Dno, COUNT(*) FROM EMPLOYEE GROUP BY Dno HAVING COUNT(*) >= 2;"
+        ], correct:[1],
+        feedback:{ right:"Employee counts come from EMPLOYEE; department names come from DEPARTMENT. A join on Dno=Dnumber is required. Option C groups on a Dname that EMPLOYEE doesn't have. Option D returns Dno, not a name.", wrong:"Dname lives in DEPARTMENT; employee rows live in EMPLOYEE. You need both tables joined. EMPLOYEE alone has no Dname column." }
+      }
+    ]
+  },
+  {
+    id:"s5", num:"05",
+    title:"Joins & Multi-table Queries",
+    intro:"Joins link rows via matching column values in WHERE (or JOIN...ON). Without a join condition, a Cartesian product is produced. Self-joins and table aliases are used when joining a table to itself.",
+    terms:["JOIN","Cartesian product","join condition","self-join","table alias"],
+    questions:[
+      { type:"mc", text:"Which query retrieves last name and address of FEMALE employees in department 5?",
+        context: schemaCtx(`\n\nEMPLOYEE has columns: Fname, Lname, Ssn, Sex, Dno, Address, ...`),
+        options:[
+          "SELECT Lname, Address FROM EMPLOYEE WHERE Dno=5;",
+          "SELECT Lname, Address FROM EMPLOYEE WHERE Sex='F' AND Dno=5;",
+          "SELECT Lname, Address FROM EMPLOYEE, DEPARTMENT WHERE Dno=5 AND Sex='F';",
+          "SELECT Lname, Address FROM EMPLOYEE WHERE Sex='Female' AND Dno=5;"
+        ], correct:[1],
+        feedback:{ right:"Both conditions (Sex='F' and Dno=5) are in EMPLOYEE — no join needed. Sex is stored as 'F', not 'Female'. Option C joins DEPARTMENT unnecessarily.", wrong:"EMPLOYEE has both Sex and Dno — no join needed. Sex is stored as 'F' or 'M', not 'Female'." }
+      },
+      { type:"mc", text:"What happens when you query two tables in FROM without a join condition?",
+        options:[
+          "SQL returns an error",
+          "SQL returns only rows with matching values",
+          "SQL produces a Cartesian product — every row of A paired with every row of B",
+          "SQL returns only the first row from each table"
+        ], correct:[2],
+        feedback:{ right:"Without a join condition, every row in table A is combined with every row in table B. With 8 employees and 3 departments, you'd get 24 rows — mostly meaningless.", wrong:"Missing join conditions produce a Cartesian product. The slides stress: 'Join conditions are important!'" }
+      },
+      { type:"mc", text:"Which query retrieves each employee's name AND their supervisor's name?",
+        context: ctx("EMPLOYEE (relevant columns)", `Fname    Lname    Ssn        Super_ssn\nJohn     Smith    123456789  333445555\nFranklin Wong     333445555  888665555\nJames    Borg     888665555  NULL`),
+        options:[
+          "SELECT Fname, Lname FROM EMPLOYEE WHERE Super_ssn IS NOT NULL;",
+          "SELECT E.Fname, E.Lname, S.Fname, S.Lname FROM EMPLOYEE E, EMPLOYEE S WHERE E.Super_ssn = S.Ssn;",
+          "SELECT E.Fname, S.Fname FROM EMPLOYEE E JOIN EMPLOYEE S;",
+          "SELECT Fname, Super_ssn FROM EMPLOYEE;"
+        ], correct:[1],
+        feedback:{ right:"Self-join: two aliases (E = employee, S = supervisor) on the same table. Join on E.Super_ssn = S.Ssn links each employee to their supervisor's row.", wrong:"Super_ssn is an SSN number, not a name. You need a self-join with aliases (E and S) to look up the supervisor's name in the same table." }
+      },
+      { type:"mc", text:"Which query retrieves names of employees who work on project Pno=10?",
+        context: schemaCtx(`\n\nWORKS_ON (partial):\nEssn       Pno\n333445555   10\n999887777   10\n987987987   10`),
+        options:[
+          "SELECT Fname, Lname FROM EMPLOYEE WHERE Pno=10;",
+          "SELECT Fname, Lname FROM EMPLOYEE, WORKS_ON WHERE Essn=Ssn AND Pno=10;",
+          "SELECT Fname, Lname FROM WORKS_ON WHERE Pno=10;",
+          "SELECT Fname, Lname FROM PROJECT WHERE Pnumber=10;"
+        ], correct:[1],
+        feedback:{ right:"Names are in EMPLOYEE; project assignments are in WORKS_ON. Join on Ssn=Essn, filter Pno=10. WORKS_ON has no names; EMPLOYEE has no Pno.", wrong:"EMPLOYEE has no Pno column; WORKS_ON has no Fname/Lname. You must join both tables on Ssn=Essn then filter by Pno=10." }
+      },
+      { type:"mc", text:"What is 'D' in: FROM DEPARTMENT D, DEPT_LOCATIONS L WHERE D.Dnumber = L.Dnumber ?",
+        options:[
+          "A column alias renaming Dnumber",
+          "A table alias — shorthand for DEPARTMENT used to prefix column references",
+          "A subquery label",
+          "A sort key"
+        ], correct:[1],
+        feedback:{ right:"D is a table alias (correlation name). Instead of DEPARTMENT.Dnumber you write D.Dnumber. Essential in self-joins to distinguish two instances of the same table.", wrong:"D is a table alias, not a column alias. It's a shorthand for DEPARTMENT, making join conditions shorter and self-joins possible." }
+      }
+    ]
+  },
+  {
+    id:"s6", num:"06",
+    title:"Subqueries",
+    intro:"A subquery is a SELECT nested inside another statement. It can appear in WHERE (with IN, comparisons, ANY/ALL), SELECT, or FROM. It replaces complex joins and improves readability.",
+    terms:["subquery","nested SELECT","IN","NOT IN","ANY","ALL","correlated"],
+    questions:[
+      { type:"mc", text:"Which query retrieves names of ALL department managers using a subquery?",
+        context: schemaCtx(),
+        options:[
+          "SELECT Fname, Lname FROM EMPLOYEE WHERE Ssn IN (SELECT Mgr_ssn FROM DEPARTMENT);",
+          "SELECT Fname, Lname FROM EMPLOYEE, DEPARTMENT WHERE Ssn=Mgr_ssn;",
+          "SELECT Mgr_ssn FROM DEPARTMENT;",
+          "Both A and B are correct"
+        ], correct:[3],
+        feedback:{ right:"Option A uses IN with a subquery; Option B uses a join. Both return the same result. Option C returns SSNs, not names.", wrong:"Both A (subquery with IN) and B (join) return manager names. Option C only returns SSNs." }
+      },
+      { type:"mc", text:"Which subquery retrieves employees with the maximum salary?",
+        context: ctx("Query skeleton", `SELECT fname, lname, salary\nFROM employee\nWHERE salary = ___________`),
+        options:[
+          "(SELECT AVG(salary) FROM employee)",
+          "(SELECT MAX(salary) FROM employee)",
+          "(SELECT salary FROM employee WHERE salary > 50000)",
+          "MAX(salary)"
+        ], correct:[1],
+        feedback:{ right:"(SELECT MAX(salary)) returns one scalar value — the highest salary — which = compares against each row. MAX() alone is not valid in a WHERE clause.", wrong:"MAX() cannot appear directly in WHERE. You must wrap it in a subquery. AVG gives average, not maximum." }
+      },
+      { type:"mc", text:"Which operator retrieves employees whose salary is higher than EVERY employee in department 5?",
+        options:["= ANY","= ALL","> ALL","IN"],
+        correct:[2],
+        feedback:{ right:"> ALL means greater than every value in the set — equivalent to > MAX. The slides show this in Q22.", wrong:"= ANY = equal to at least one. = ALL = equal to every. IN = membership. Only > ALL ensures the value exceeds the entire set (equivalent to > MAX)." }
+      },
+      { type:"tf", text:"A subquery can appear in the FROM clause, creating a derived (inline) table.",
+        options:["True","False"], correct:[0],
+        feedback:{ right:"Yes — subqueries in FROM create derived tables. The slides show: SELECT fname FROM (SELECT essn, fname, count(*) empNo FROM employee, dependent WHERE ssn=essn GROUP BY essn, fname) WHERE empNo > 1.", wrong:"Subqueries in FROM are valid and create an inline view. The outer query selects from the derived result." }
+      }
+    ]
+  },
+  {
+    id:"s7", num:"07",
+    title:"Set Operations",
+    intro:"UNION returns rows from either query. INTERSECT returns rows in both. MINUS/EXCEPT returns rows in the first but not the second. Both queries must be union-compatible: same column count and matching data types.",
+    terms:["UNION","INTERSECT","MINUS","EXCEPT","union-compatible","set difference"],
+    questions:[
+      { type:"mc", text:"What are the two requirements for union compatibility?",
+        options:[
+          "Same row count AND same column count",
+          "Same column count AND corresponding columns have identical data types/lengths",
+          "Same primary key AND same column names",
+          "Same table name AND same row count"
+        ], correct:[1],
+        feedback:{ right:"Union compatibility: (1) same number of columns, (2) corresponding columns have matching data types and lengths. Row counts and column names are irrelevant.", wrong:"Union compatibility is structural — column count and data types matter. Row count and column names don't." }
+      },
+      { type:"mc", text:"Which query retrieves SSNs of employees working on BOTH project 1 AND project 2?",
+        context: ctx("WORKS_ON (partial)", `Essn       Pno\n123456789   1\n123456789   2\n453453453   1\n453453453   2\n666884444   3`),
+        options:[
+          "SELECT Essn FROM WORKS_ON WHERE Pno=1 AND Pno=2;",
+          "SELECT Essn FROM WORKS_ON WHERE Pno=1 UNION SELECT Essn FROM WORKS_ON WHERE Pno=2;",
+          "SELECT Essn FROM WORKS_ON WHERE Pno=1 INTERSECT SELECT Essn FROM WORKS_ON WHERE Pno=2;",
+          "SELECT Essn FROM WORKS_ON WHERE Pno IN (1,2);"
+        ], correct:[2],
+        feedback:{ right:"INTERSECT returns only rows present in both result sets — employees in Pno=1 AND Pno=2. Option A is logically impossible (one row can't have two Pno values). UNION and IN(1,2) return OR logic.", wrong:"Pno=1 AND Pno=2 on one row is impossible. UNION gives OR logic. IN(1,2) also OR. Only INTERSECT gives AND logic — employees in both projects." }
+      },
+      { type:"mc", text:"Which query retrieves SSNs of employees who are NOT supervisors of anyone?",
+        context: ctx("EMPLOYEE (partial)", `Ssn        Super_ssn (someone's supervisor if their SSN appears here)\n123456789  333445555\n333445555  888665555\n999887777  987654321\n888665555  NULL`),
+        options:[
+          "SELECT Ssn FROM EMPLOYEE WHERE Super_ssn IS NULL;",
+          "SELECT Ssn FROM EMPLOYEE MINUS SELECT Super_ssn FROM EMPLOYEE;",
+          "SELECT Ssn FROM EMPLOYEE WHERE Ssn NOT IN (SELECT Super_ssn FROM EMPLOYEE);",
+          "Both B and C are correct approaches"
+        ], correct:[3],
+        feedback:{ right:"Option A finds employees WITH NO supervisor — a different question. B (MINUS) and C (NOT IN) both subtract the set of supervisor SSNs from all SSNs, finding non-supervisors.", wrong:"Option A asks 'who has no supervisor' — that's the opposite question. B and C correctly find SSNs not appearing as anyone's Super_ssn." }
+      },
+      { type:"tf", text:"R MINUS S always equals S MINUS R.",
+        options:["True","False"], correct:[1],
+        feedback:{ right:"Set difference is not commutative. R–S keeps rows unique to R; S–R keeps rows unique to S. They're only equal if R = S. The slides explicitly show R–S ≠ S–R.", wrong:"R MINUS S ≠ S MINUS R in general. They return different sets — rows unique to R vs rows unique to S." }
+      }
+    ]
+  },
+  {
+    id:"s8", num:"08",
+    title:"Outer Joins & NULL Handling",
+    intro:"Inner joins exclude unmatched rows. Left outer joins keep all left-table rows, padding unmatched columns with NULL. NULL requires IS NULL / IS NOT NULL — equality comparisons with NULL always return UNKNOWN.",
+    terms:["LEFT OUTER JOIN","RIGHT OUTER JOIN","INNER JOIN","NULL","IS NULL","IS NOT NULL"],
+    questions:[
+      { type:"mc", text:"Why does a LEFT OUTER JOIN (EMPLOYEE on left) return more rows than an INNER JOIN on the same tables?",
+        options:[
+          "The inner join sorts differently",
+          "The left outer join includes employees with no matching department, padding with NULLs",
+          "The inner join duplicates rows",
+          "They always return the same number of rows"
+        ], correct:[1],
+        feedback:{ right:"Inner join drops rows with no match. Left outer join keeps ALL employee rows, filling DEPARTMENT columns with NULL where no match exists.", wrong:"Left outer joins preserve every left-table row. Unmatched rows get NULLs for the right-table columns — inner join would drop those rows." }
+      },
+      { type:"mc", text:"Which query finds employees who have NO supervisor (Super_ssn is NULL)?",
+        context: ctx("EMPLOYEE (partial)", `Fname   Ssn        Super_ssn\nJohn    123456789  333445555\nJames   888665555  NULL`),
+        options:[
+          "SELECT Ssn, Fname FROM EMPLOYEE WHERE Super_ssn = NULL;",
+          "SELECT Ssn, Fname FROM EMPLOYEE WHERE Super_ssn IS NULL;",
+          "SELECT Ssn, Fname FROM EMPLOYEE WHERE Super_ssn = '';",
+          "SELECT Ssn, Fname FROM EMPLOYEE WHERE Super_ssn NOT IN (SELECT Ssn FROM EMPLOYEE);"
+        ], correct:[1],
+        feedback:{ right:"= NULL always returns UNKNOWN — it never matches. IS NULL is the correct test. This is Q16 from the slides, returning James Borg.", wrong:"= NULL is invalid SQL — any comparison with NULL returns UNKNOWN, never TRUE. Always use IS NULL to test for nullness." }
+      },
+      { type:"tf", text:"A FULL OUTER JOIN includes all rows from both tables, with NULLs where no match exists on either side.",
+        options:["True","False"], correct:[0],
+        feedback:{ right:"Full outer join = left outer join ∪ right outer join. Every row from both tables appears; unmatched sides are padded with NULLs.", wrong:"True — full outer join keeps all rows from both tables, filling NULLs on whichever side lacks a match." }
+      }
+    ]
+  },
+  {
+    id:"s9", num:"09",
+    title:"ORDER BY & IN Operator",
+    intro:"ORDER BY sorts results by one or more columns (ASC by default, DESC for reverse). The IN operator tests membership in a value set — the set can be a literal list or a subquery result.",
+    terms:["ORDER BY","ASC","DESC","IN","sort key","multi-column sort"],
+    questions:[
+      { type:"mc", text:"Which ORDER BY clause sorts WORKS_ON first by Pno ascending, then Hours descending?",
+        options:[
+          "ORDER BY Pno, Hours;",
+          "ORDER BY Pno ASC, Hours DESC;",
+          "ORDER BY Hours DESC, Pno ASC;",
+          "ORDER BY Pno DESC, Hours ASC;"
+        ], correct:[1],
+        feedback:{ right:"Primary key = Pno ASC; secondary = Hours DESC within each Pno group. This matches the exact example in the slides.", wrong:"Column order in ORDER BY sets priority. Option C sorts by Hours first. Default is ASC, so omitting direction = ascending." }
+      },
+      { type:"mc", text:"Which query uses IN to list names of employees who have at least one dependent?",
+        context: schemaCtx(),
+        options:[
+          "SELECT Fname, Lname FROM EMPLOYEE WHERE Ssn = (SELECT Essn FROM DEPENDENT);",
+          "SELECT Fname, Lname FROM EMPLOYEE WHERE Ssn IN (SELECT Essn FROM DEPENDENT);",
+          "SELECT Fname, Lname FROM DEPENDENT WHERE Ssn IN (SELECT Essn FROM EMPLOYEE);",
+          "SELECT Fname, Lname FROM EMPLOYEE WHERE Ssn > (SELECT Essn FROM DEPENDENT);"
+        ], correct:[1],
+        feedback:{ right:"IN handles a multi-row subquery. = (option A) fails if the subquery returns more than one row. DEPENDENT has no Fname/Lname.", wrong:"= fails with multi-row subqueries. DEPENDENT doesn't have Fname/Lname. Only IN correctly handles a set of values from a subquery." }
+      },
+      { type:"tf", text:"ORDER BY defaults to descending order unless ASC is specified.",
+        options:["True","False"], correct:[1],
+        feedback:{ right:"ORDER BY defaults to ASCENDING. To get largest-first, specify DESC explicitly. The slides: 'sorted in ascending order by default unless another order is specified'.", wrong:"Default is ASC (smallest first). You must write DESC to reverse it." }
+      }
+    ]
+  },
+  {
+    id:"s10", num:"10",
+    title:"Full Query Structure",
+    intro:"Complete SQL SELECT clause order: SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY. Each clause has strict rules about what it can reference — mastering this order prevents the most common SQL errors.",
+    terms:["clause order","SELECT","FROM","WHERE","GROUP BY","HAVING","ORDER BY"],
+    questions:[
+      { type:"mc", text:"Place the SQL clauses in the correct written order:",
+        options:[
+          "SELECT → FROM → GROUP BY → WHERE → HAVING → ORDER BY",
+          "FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY",
+          "SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY",
+          "FROM → SELECT → WHERE → GROUP BY → HAVING → ORDER BY"
+        ], correct:[2],
+        feedback:{ right:"Written syntax: SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY. (The engine internally evaluates FROM→WHERE→GROUP BY→HAVING→SELECT→ORDER BY, but you write them in the order shown.)", wrong:"The written syntax order is SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY. This is fixed — deviating causes a syntax error." }
+      },
+      { type:"mc", text:"For each project, retrieve the project name, location, and total employee count. Which query is correct?",
+        context: schemaCtx(`\n\nSample WORKS_ON:\n${SAMPLE_WORKS_ON}\n\nSample PROJECT:\n${SAMPLE_PROJECT}`),
+        options:[
+          "SELECT Pname, Plocation, COUNT(*) FROM PROJECT GROUP BY Pname, Plocation;",
+          "SELECT Pname, Plocation, COUNT(*) FROM PROJECT, WORKS_ON WHERE Pnumber=Pno GROUP BY Pname, Plocation;",
+          "SELECT Pname, COUNT(*) FROM WORKS_ON GROUP BY Pno;",
+          "SELECT Pname, Plocation, SUM(Hours) FROM PROJECT, WORKS_ON WHERE Pnumber=Pno GROUP BY Pname, Plocation;"
+        ], correct:[1],
+        feedback:{ right:"Names/locations in PROJECT; assignments in WORKS_ON. Join on Pnumber=Pno. GROUP BY all non-aggregate SELECT columns. COUNT(*) = workers per project.", wrong:"Option A counts PROJECT rows, not employees. Option C omits Plocation and returns Pno. Option D uses SUM(Hours) not COUNT(*) — hours ≠ workers." }
+      },
+      { type:"mc", text:"Why can't COUNT(*) appear directly in a WHERE clause?",
+        options:[
+          "It can — there are no restrictions on WHERE",
+          "WHERE is evaluated before grouping, so aggregate values don't exist yet",
+          "WHERE is case-sensitive and COUNT is uppercase",
+          "Aggregate functions are only allowed in SELECT"
+        ], correct:[1],
+        feedback:{ right:"WHERE filters individual rows BEFORE they're grouped. Aggregates only have meaning after GROUP BY. HAVING exists specifically for post-aggregation filtering.", wrong:"WHERE runs before GROUP BY. Since groups haven't formed yet, COUNT(*) doesn't exist at that stage. HAVING is for filtering after aggregation." }
+      },
+      { type:"mc", text:"Which query finds departments with 2+ locations and lists each location?",
+        context: ctx("DEPT_LOCATIONS", `Dnumber  Dlocation\n1        Houston\n4        Stafford\n5        Bellaire\n5        Sugarland\n5        Houston`),
+        options:[
+          "SELECT Dnumber, Dlocation FROM DEPT_LOCATIONS WHERE COUNT(*) >= 2;",
+          "SELECT Dnumber FROM DEPT_LOCATIONS GROUP BY Dnumber HAVING COUNT(*) >= 2;",
+          "SELECT Dnumber, Dlocation FROM DEPT_LOCATIONS GROUP BY Dnumber HAVING COUNT(*) >= 2;",
+          "SELECT Dnumber, COUNT(Dlocation) FROM DEPT_LOCATIONS GROUP BY Dnumber HAVING COUNT(*) >= 2;"
+        ], correct:[2],
+        feedback:{ right:"GROUP BY Dnumber groups per department. HAVING COUNT(*) >= 2 filters to multi-location departments. Including Dlocation in SELECT shows the actual location values.", wrong:"Option A uses aggregate in WHERE (invalid). Option B omits Dlocation. Option D returns counts of locations instead of the actual location names." }
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let state = {
+  queue: [],         // [{sectionIdx, questionIdx, q, sec}]
+  cursor: 0,
+  correct: 0,
+  wrong: 0,
+  results: [],       // {sectionTitle, sectionNum, q, selected, isCorrect}
+  isRemediation: false,
+  missedIndices: []  // indices into original queue that were missed
+};
+
+// ══════════════════════════════════════════════
+// BUILD QUEUE
+// ══════════════════════════════════════════════
+function buildQueue(randomize, remediationOnly = false) {
+  let items = [];
+  if (remediationOnly) {
+    state.missedIndices.forEach(mi => items.push(state.results[mi]._queueItem));
+  } else {
+    sections.forEach((sec, si) => {
+      sec.questions.forEach((q, qi) => {
+        items.push({ sec, q, si, qi, id: `${sec.id}_q${qi}` });
+      });
+    });
+  }
+  if (randomize) {
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+  }
+  return items;
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+function init(remediationOnly = false) {
+  const randomize = document.getElementById('toggle-random').checked;
+
+  state.cursor = 0;
+  state.correct = 0;
+  state.wrong = 0;
+  state.results = [];
+  state.isRemediation = remediationOnly;
+
+  if (!remediationOnly) state.missedIndices = [];
+
+  state.queue = buildQueue(randomize, remediationOnly);
+  state.queue.forEach(item => { item._selected = []; item._submitted = false; });
+
+  document.getElementById('rem-badge').classList.toggle('visible', remediationOnly);
+
+  document.getElementById('screen-quiz').classList.add('active');
+  document.getElementById('screen-summary').classList.remove('active');
+
+  updateDashboard();
+  showQuestion(0);
+}
+
+// ══════════════════════════════════════════════
+// SHOW QUESTION
+// ══════════════════════════════════════════════
+let lastSectionId = null;
+
+function showQuestion(idx) {
+  const item = state.queue[idx];
+  const { sec, q } = item;
+  const total = state.queue.length;
+
+  // Counter
+  document.getElementById('q-counter-num').innerHTML = `Q<span>${idx + 1}</span>`;
+  document.getElementById('q-counter-of').textContent = `of ${total}`;
+  document.getElementById('q-counter-section').textContent = `§${sec.num} · ${sec.title}`;
+
+  // Section strip — only show when section changes
+  const stripWrap = document.getElementById('section-strip-wrap');
+  if (sec.id !== lastSectionId) {
+    lastSectionId = sec.id;
+    stripWrap.innerHTML = `
+      <div class="section-strip">
+        <div class="section-strip-label">Section ${sec.num}</div>
+        <div class="section-strip-title">${sec.title}</div>
+        <div class="section-strip-intro">${sec.intro}</div>
+        <div class="key-terms">${sec.terms.map(t => `<span class="term-chip">${t}</span>`).join('')}</div>
+      </div>`;
+  } else {
+    stripWrap.innerHTML = '';
+  }
+
+  // Type label
+  const typeLabel = { mc: 'Multiple Choice', tf: 'True / False', sa: 'Select All That Apply' }[q.type];
+  const isMulti = q.type === 'sa';
+  const letters = ['A','B','C','D','E'];
+
+  const optionsHtml = q.options.map((opt, i) => `
+    <div class="option" id="opt-${i}" onclick="selectOpt(${i})">
+      <span class="opt-mark">${letters[i]}</span>
+      <span>${escHtml(opt)}</span>
+    </div>`).join('');
+
+  document.getElementById('question-wrap').innerHTML = `
+    <div class="question-card" id="q-card">
+      <div class="q-meta">
+        <span class="q-type-chip">${typeLabel}</span>
+        <span class="q-section-chip">§${sec.num} ${sec.title}</span>
+      </div>
+      <div class="question-text">${escHtml(q.text)}</div>
+      ${q.context || ''}
+      <div class="options" id="opts">${optionsHtml}</div>
+      <div class="btn-row">
+        <button class="btn-submit" id="btn-submit" onclick="submitAnswer()" disabled>Submit</button>
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()">${idx + 1 < total ? 'Next Question →' : 'See Results →'}</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>`;
+
+  // Progress
+  const answered = state.correct + state.wrong;
+  document.getElementById('prog-fill').style.width = total > 0 ? (answered / total * 100) + '%' : '0%';
+
+  // Scroll to top smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════
+// OPTION SELECTION
+// ══════════════════════════════════════════════
+function selectOpt(i) {
+  const item = state.queue[state.cursor];
+  if (item._submitted) return;
+  const isMulti = item.q.type === 'sa';
+
+  if (!isMulti) {
+    item._selected = [i];
+    document.querySelectorAll('#opts .option').forEach(el => el.classList.remove('sel'));
+  } else {
+    const pos = item._selected.indexOf(i);
+    if (pos === -1) item._selected.push(i);
+    else item._selected.splice(pos, 1);
+  }
+
+  document.getElementById(`opt-${i}`).classList.toggle('sel', item._selected.includes(i));
+  if (!isMulti) document.getElementById(`opt-${i}`).classList.add('sel');
+
+  document.getElementById('btn-submit').disabled = item._selected.length === 0;
+}
+
+// ══════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════
+function submitAnswer() {
+  const item = state.queue[state.cursor];
+  if (item._submitted) return;
+  item._submitted = true;
+
+  const q = item.q;
+  const selected = item._selected.slice().sort((a,b)=>a-b);
+  const correct = q.correct.slice().sort((a,b)=>a-b);
+  const isCorrect = JSON.stringify(selected) === JSON.stringify(correct);
+
+  // Lock + reveal options
+  document.querySelectorAll('#opts .option').forEach((el, i) => {
+    el.classList.add('locked');
+    el.onclick = null;
+    if (correct.includes(i)) el.classList.add('ok');
+    else if (selected.includes(i) && !correct.includes(i)) el.classList.add('bad');
+  });
+
+  // Card border
+  const card = document.getElementById('q-card');
+  card.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  fb.className = `feedback ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+  fb.innerHTML = `<div class="fb-label">${isCorrect ? '✓ Correct' : '✗ Incorrect'}</div>${isCorrect ? q.feedback.right : q.feedback.wrong}`;
+
+  // Buttons
+  document.getElementById('btn-submit').style.display = 'none';
+  document.getElementById('btn-next').classList.add('visible');
+
+  // Score
+  if (isCorrect) {
+    state.correct++;
+  } else {
+    state.wrong++;
+    const resultIdx = state.results.length;
+    state.missedIndices.push(resultIdx);
+  }
+
+  // Save result
+  state.results.push({
+    sectionTitle: item.sec.title,
+    sectionNum: item.sec.num,
+    q: item.q,
+    selected: item._selected.slice(),
+    isCorrect,
+    _queueItem: item
+  });
+
+  updateDashboard();
+
+  // Update progress
+  const total = state.queue.length;
+  const answered = state.correct + state.wrong;
+  document.getElementById('prog-fill').style.width = (answered / total * 100) + '%';
+}
+
+// ══════════════════════════════════════════════
+// NEXT
+// ══════════════════════════════════════════════
+function nextQuestion() {
+  state.cursor++;
+  if (state.cursor >= state.queue.length) {
+    showSummary();
+  } else {
+    showQuestion(state.cursor);
+  }
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function updateDashboard() {
+  const answered = state.correct + state.wrong;
+  document.getElementById('s-correct').textContent = state.correct;
+  document.getElementById('s-wrong').textContent = state.wrong;
+  document.getElementById('s-score').textContent = answered > 0 ? Math.round(state.correct / answered * 100) + '%' : '—';
+}
+
+// ══════════════════════════════════════════════
+// SUMMARY
+// ══════════════════════════════════════════════
+function showSummary() {
+  document.getElementById('screen-quiz').classList.remove('active');
+  const summaryEl = document.getElementById('screen-summary');
+  summaryEl.classList.add('active');
+
+  const total = state.results.length;
+  const correct = state.results.filter(r => r.isCorrect).length;
+  const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+
+  const verdict = pct >= 80 ? ['verdict-great', '🎯 Strong Performance']
+                : pct >= 60 ? ['verdict-ok',    '📈 Decent — Review Misses']
+                :             ['verdict-low',   '🔁 Reinforce the Weak Spots'];
+
+  // Build section breakdown
+  const sectionMap = {};
+  sections.forEach(sec => { sectionMap[sec.title] = { title: sec.title, num: sec.num, total: 0, correct: 0 }; });
+  state.results.forEach(r => {
+    if (sectionMap[r.sectionTitle]) {
+      sectionMap[r.sectionTitle].total++;
+      if (r.isCorrect) sectionMap[r.sectionTitle].correct++;
+    }
+  });
+
+  const breakdownRows = Object.values(sectionMap)
+    .filter(s => s.total > 0)
+    .map(s => {
+      const sp = Math.round(s.correct / s.total * 100);
+      const cls = sp === 100 ? 'full' : sp >= 50 ? 'some' : 'none';
+      return `<div class="breakdown-row">
+        <div class="br-section">§${s.num} ${s.title}</div>
+        <div class="br-bar-wrap"><div class="br-bar-fill ${cls}" style="width:${sp}%"></div></div>
+        <div class="br-score ${cls}">${s.correct}/${s.total}</div>
+      </div>`;
+    }).join('');
+
+  // Build missed questions list
+  const missedHtml = buildMissedHtml();
+
+  const letters = ['A','B','C','D','E'];
+
+  let summaryHtml = `
+    <div class="summary-hero">
+      <div class="summary-pct">${pct}%</div>
+      <div class="summary-sub">${correct} correct · ${total - correct} missed · ${total} total</div>
+      <div class="summary-verdict ${verdict[0]}">${verdict[1]}</div>
+    </div>
+
+    <div class="section-breakdown">
+      <div class="breakdown-header">Section Breakdown</div>
+      ${breakdownRows}
+    </div>`;
+
+  if (state.missedIndices.length > 0) {
+    summaryHtml += `
+      <div class="missed-section-title">⚠ Missed Questions — Review These</div>
+      ${missedHtml}`;
+  } else {
+    summaryHtml += `<div class="perfect-screen"><div class="perfect-score">100%</div><div class="perfect-msg">Perfect score — nothing missed.</div></div>`;
+  }
+
+  summaryHtml += `
+    <div class="summary-actions">
+      ${state.missedIndices.length > 0 ? `<button class="btn-primary" onclick="startRemediation()">🔁 Remediate ${state.missedIndices.length} Missed</button>` : ''}
+      <button class="btn-secondary" onclick="startFresh()">↺ Start Over</button>
+    </div>`;
+
+  summaryEl.innerHTML = summaryHtml;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Animate bar fills after render
+  setTimeout(() => {
+    document.querySelectorAll('.br-bar-fill').forEach(el => {
+      const w = el.style.width;
+      el.style.width = '0%';
+      setTimeout(() => { el.style.width = w; }, 50);
+    });
+  }, 100);
+}
+
+function buildMissedHtml() {
+  const letters = ['A','B','C','D','E'];
+  return state.missedIndices.map((ri, animIdx) => {
+    const r = state.results[ri];
+    const q = r.q;
+    const yourOptions = r.selected.map(i => letters[i]).join(', ') || '—';
+    const correctOptions = q.correct.map(i => letters[i]).join(', ');
+    const yourText = r.selected.map(i => q.options[i]).join('; ');
+    const correctText = q.correct.map(i => q.options[i]).join('; ');
+
+    return `<div class="missed-card" style="animation-delay:${animIdx * 0.05}s">
+      <div style="font-size:0.67rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">§${r.sectionNum} · ${r.sectionTitle}</div>
+      <div class="missed-q-text">${escHtml(q.text)}</div>
+      <div class="missed-answers">
+        <div class="missed-answer-row">
+          <span class="ma-label you">Your Answer</span>
+          <span style="color:#f0b8b8">${letters[r.selected[0]] || '—'}. ${escHtml(yourText)}</span>
+        </div>
+        <div class="missed-answer-row">
+          <span class="ma-label correct">Correct</span>
+          <span style="color:#a8efcc">${correctOptions}. ${escHtml(correctText)}</span>
+        </div>
+      </div>
+      <div class="missed-why">${q.feedback.wrong}</div>
+    </div>`;
+  }).join('');
+}
+
+function startRemediation() {
+  init(true);
+}
+
+function startFresh() {
+  lastSectionId = null;
+  state.missedIndices = [];
+  init(false);
+}
+
+// Shuffle toggle — restart if already started? Only affects next session start.
+// It's live: user can toggle before starting or between sessions.
+
+// ══════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>

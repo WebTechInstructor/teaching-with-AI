@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSTEM Teaching with AI Presentation Resources</title>
+    <style>
+        :root {
+            --bg: #111114;
+            --surface: rgba(255, 255, 255, 0.05);
+            --text: #f3f3f3;
+            --muted: #b8bbc1;
+            --accent: #8b2f52;
+            --accent-soft: rgba(139, 47, 82, 0.18);
+            --border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, rgba(139, 47, 82, 0.12), transparent 38%),
+                        linear-gradient(180deg, #16161b 0%, #0f1014 100%);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: min(1200px, 100%);
+            padding: 40px 36px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.03);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .brand img {
+            width: 120px;
+            height: auto;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        h1 {
+            margin: 20px auto;
+            font-size: clamp(2.4rem, 3.5vw, 4rem);
+            letter-spacing: -0.05em;
+            line-height: 1.03;
+            max-width: 12ch;
+        }
+
+        p {
+            margin: 20px auto 34px;
+            max-width: 720px;
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.85;
+        }
+
+        .links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 28px 24px;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: var(--surface);
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139, 47, 82, 0.35);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+        }
+
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+            color: #ffffff;
+        }
+
+        .card span {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .card a {
+            margin-top: 22px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            background: linear-gradient(135deg, var(--accent) 0%, #c14a77 100%);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .card a:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+
+        .footer {
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 720px) {
+            .container {
+                padding: 28px 20px;
+            }
+
+            .links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="brand">
+            <img src="logo.png" alt="UA Little Rock logo">
+            <div>
+                <p style="margin:0;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.16em;">CSTEM Teaching with AI</p>
+                <h1>Presentation Resources</h1>
+            </div>
+        </div>
+
+        <div class="links">
+            <div class="card">
+                <h2>NotebookLM</h2>
+                <span>Access resources and guides for using NotebookLM in your teaching workflow.</span>
+                <a href="assets/Design week 1.pptx" target="_blank">Presentation</a>
+                <a href="assets/Dabetwar AI tools.mp4" target="_blank">Video</a>
+                <a href="assets/prompt vs output.docx" target="_blank">Prompt</a>
+                <a href="assets/Ju et al 2023.pdf" target="_blank">Explore</a>
+            </div>
+            <div class="card">
+                <h2>Google AI Studio</h2>
+                <span>Discover tools and tutorials for Google AI Studio to enhance your AI-powered lessons.</span>
+                <a href="assets/Google-AI-Studio.pdf" target="_blank">Explore</a>
+            </div>
+            <div class="card">
+                <h2>Claude Quiz Builder</h2>
+                <span>Find resources for building interactive quizzes with Claude AI.</span>
+                <a href="index.html" target="_blank">Explore</a>
+            </div>
+            <div class="card">
+                <h2>Gemini Gems</h2>
+                <span>Explore curated gems and best practices for using Gemini in educational settings.</span>
+                <a href="assets/Gemini Gems.pdf" target="_blank">Explore</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>© 2026 UA Little Rock CSTEM. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

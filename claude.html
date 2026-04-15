@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSTEM Teaching with AI Presentation Resources</title>
+    <title>CSTEM Teaching with AI Demo</title>
     <style>
         :root {
             --bg: #111114;
@@ -34,7 +34,7 @@
         }
 
         .container {
-            width: min(1200px, 100%);
+            width: min(980px, 100%);
             padding: 40px 36px;
             border: 1px solid var(--border);
             border-radius: 28px;
@@ -78,13 +78,14 @@
 
         .links {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
             gap: 20px;
         }
 
         .card {
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
             padding: 28px 24px;
             border: 1px solid var(--border);
@@ -111,7 +112,7 @@
             line-height: 1.6;
         }
 
-        a {
+        .card a {
             margin-top: 22px;
             padding: 12px 24px;
             border-radius: 999px;
@@ -123,7 +124,7 @@
             transition: transform 0.2s ease, filter 0.2s ease;
         }
 
-         a:hover {
+        .card a:hover {
             transform: translateY(-1px);
             filter: brightness(1.05);
         }
@@ -153,34 +154,25 @@
             <img src="logo.png" alt="UA Little Rock logo">
             <div>
                 <p style="margin:0;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.16em;">CSTEM Teaching with AI</p>
-                <h1>Presentation Resources</h1>
-                <p><a href="https://ualr-edu.zoom.us/rec/share/RzFlrKVv-liKmQvbLUce7T8uBu_dVtRE9l0g9PWJ800wrFkkBx6MUAQFtewr0OjY.5XHhM4N1lOATbE7e">View Recording</a></p>
+                <h1>CSTEM Teaching with AI Demo</h1>
             </div>
         </div>
 
         <div class="links">
             <div class="card">
-                <h2>NotebookLM</h2>
-                <span>Access resources and guides for using NotebookLM in your teaching workflow.</span>
-                <a href="assets/Design week 1.pptx" target="_blank">Presentation</a>
-                <a href="assets/Dabetwar AI tools.mp4" target="_blank">Video</a>
-                <a href="assets/prompt vs output.docx" target="_blank">Prompt</a>
-                <a href="assets/Ju et al 2023.pdf" target="_blank">Explore</a>
+                <h2>Presentation</h2>
+                <span>Open the full presentation to review the teaching approach, AI workflow, and examples.</span>
+                <a href="https://docs.google.com/presentation/d/e/2PACX-1vTv1Xxam9mm-T_teEF9N6cIUiAgUmK9IJluwS_92hXEBPeCAnQyfiEytISzS8Pc5g/pub?slide=id.p1" target="_blank">View</a>
             </div>
             <div class="card">
-                <h2>Google AI Studio</h2>
-                <span>Discover tools and tutorials for Google AI Studio to enhance your AI-powered lessons.</span>
-                <a href="assets/Google-AI-Studio.pdf" target="_blank">Explore</a>
+                <h2>Demo</h2>
+                <span>Launch the interactive demo to see the concepts in action and test the experience.</span>
+                <a href="demo.html" target="_blank">Launch</a>
             </div>
             <div class="card">
-                <h2>Claude Quiz Builder</h2>
-                <span>Find resources for building interactive quizzes with Claude AI.</span>
-                <a href="claude.html" target="_blank">Explore</a>
-            </div>
-            <div class="card">
-                <h2>Gemini Gems</h2>
-                <span>Explore curated gems and best practices for using Gemini in educational settings.</span>
-                <a href="assets/Gemini Gems.pdf" target="_blank">Explore</a>
+                <h2>Prompt</h2>
+                <span>Inspect the prompt definition used to guide the AI and reproduce the workflow.</span>
+                <a href="prompt.md" target="_blank">Open</a>
             </div>
         </div>
         <div class="footer">

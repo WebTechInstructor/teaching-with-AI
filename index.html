@@ -19,6 +19,14 @@
             box-sizing: border-box;
         }
 
+        .block {
+            display: block;
+            margin: 20px auto;
+            width:50%;
+        }   
+        p.tagline{margin:0 auto 30px auto;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.16em;max-width: 100%;padding;10px; border-radius: 12px; 
+            background: var(--surface); 
+            border: 1px solid rgba(139, 47, 82, 0.35);}
         body {
             margin: 0;
             min-height: 100vh;
@@ -52,7 +60,7 @@
         }
 
         .brand img {
-            width: 120px;
+            width: 150px;
             height: auto;
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.06);
@@ -136,6 +144,70 @@
             font-size: 0.95rem;
         }
 
+        /* Accordion Styles */
+        .accordion {
+            margin: 40px 0;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        .accordion-item {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .accordion-item:last-child {
+            border-bottom: none;
+        }
+
+        .accordion-header {
+            padding: 20px 24px;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .accordion-header:hover {
+            background: rgba(139, 47, 82, 0.1);
+        }
+
+        .accordion-header::after {
+            content: '+';
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+            color: var(--accent);
+        }
+
+        .accordion-item.active .accordion-header::after {
+            content: '−';
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 2000px;
+            padding: 20px 24px;
+        }
+
+        .accordion-content p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
         @media (max-width: 720px) {
             .container {
                 padding: 28px 20px;
@@ -144,21 +216,49 @@
             .links {
                 grid-template-columns: 1fr;
             }
+
+            .accordion-header {
+                padding: 16px 20px;
+                font-size: 1rem;
+            }
+
+            .accordion-item.active .accordion-content {
+                padding: 16px 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+                        <p class="tagline">CSTEM Teaching with AI</p>
         <div class="brand">
             <img src="logo.png" alt="UA Little Rock logo">
             <div>
-                <p style="margin:0;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:0.16em;">CSTEM Teaching with AI</p>
-                <h1>Presentation Resources</h1>
-                <p><a href="https://ualr-edu.zoom.us/rec/share/RzFlrKVv-liKmQvbLUce7T8uBu_dVtRE9l0g9PWJ800wrFkkBx6MUAQFtewr0OjY.5XHhM4N1lOATbE7e">View Recording</a></p>
+                <h1>2026 Presentation Resources</h1>
             </div>
         </div>
 
+
+
+        <div class="accordion">
+            <div class="accordion-item active">
+                <div class="accordion-header">May 2026 | Sample Syllabus Statements and Next Steps</div>
+                <div class="accordion-content">
+                      <div class="links">
+            <div class="card">
+                <h2>Syllabus Statement Guidance</h2>
+                                            <a href="https://docs.google.com/presentation/d/15D3sUPqO6Rjo60WRnxFx92ogvipQYcfo-pGOnsIy8bE/edit?usp=sharinghttps://ualr-edu.zoom.us/rec/share/RzFlrKVv-liKmQvbLUce7T8uBu_dVtRE9l0g9PWJ800wrFkkBx6MUAQFtewr0OjY.5XHhM4N1lOATbE7e" class="block">View Presentatiion</a>
+
+                
+            </div>
+        </div> </div> 
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">April 2026 | AI Tips and Tools</div>
+                <div class="accordion-content">
+                                            <a href="https://ualr-edu.zoom.us/rec/share/RzFlrKVv-liKmQvbLUce7T8uBu_dVtRE9l0g9PWJ800wrFkkBx6MUAQFtewr0OjY.5XHhM4N1lOATbE7e" class="block">View Session Recording</a>
         <div class="links">
+
             <div class="card">
                 <h2>NotebookLM</h2>
                 <span>Access resources and guides for using NotebookLM in your teaching workflow.</span>
@@ -183,9 +283,54 @@
                 <a href="assets/Gemini Gems.pdf" target="_blank">Explore</a>
             </div>
         </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <div class="accordion-header">March - 2026 | Reimagining Lessons and Assessments Using Backward Design</div>
+                <div class="accordion-content">
+        <div class="links">
+
+            <div class="card">
+                <h2>Reimagining Lessons and Assessments Using Backward Design</h2>
+                <a href="https://docs.google.com/presentation/d/1QuL1XTqdwrRZxnk1qjH73SuzIb_x-YYucfwGFfUcGhw/edit?usp=sharing" target="_blank">View Presentation</a>
+            </div>
+            <div class="card">
+                <h2>NCDPI AI Use Continuum v. 2.0:</h2>
+                <a href="assets/NC AI Use Continuum V1 & V 2.pdf" target="_blank">Explore</a>
+            </div>
+        </div>
+                </div>
+            </div>
+        </div>
+
+
         <div class="footer">
             <p>© 2026 UA Little Rock CSTEM. All rights reserved.</p>
         </div>
     </div>
+
+    <script>
+        // Accordion functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const item = this.parentElement;
+                    const isActive = item.classList.contains('active');
+
+                    // Close all accordion items
+                    document.querySelectorAll('.accordion-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    // Open clicked item if it wasn't already active
+                    if (!isActive) {
+                        item.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
